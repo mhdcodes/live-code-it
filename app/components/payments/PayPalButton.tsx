@@ -1,11 +1,15 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useScript } from "usehooks-ts";
 
 const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
 
+type paymentSuccessHandler = (data: any) => void;
+
 export const PayPalButton = () => {
+  const router = useRouter();
   const status = useScript(
     `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=USD`,
     { removeOnUnmount: true }
@@ -24,10 +28,19 @@ export const PayPalButton = () => {
             layout: "vertical",
           },
           createOrder: createOrder,
-          onApprove: onApprove,
+          onApprove: (data: { orderID: string }) =>
+            approvePayment(data.orderID, onPaymentSuccess),
         })
         .render("#paypal-button-container");
     }
+  };
+
+  // method that runs on payment success
+  const onPaymentSuccess = (order: any) => {
+    console.log("Captured order", order, JSON.stringify(order, null, 2));
+
+    router.push("/thank-you");
+    return;
   };
 
   return <div id="paypal-button-container" className="bg-base-200 mt-1"></div>;
@@ -54,27 +67,16 @@ function createOrder() {
     .then((order) => order.id);
 }
 
-function onApprove(data: { orderID: string }) {
+function approvePayment(orderId: string, handleSuccess: paymentSuccessHandler) {
   return fetch("/api/orders/capture", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      orderID: data.orderID,
+      orderID: orderId,
     }),
   })
     .then((response) => response.json())
-    .then((orderData) => {
-      // Successful capture! For dev/demo purposes:
-      console.log(
-        "Capture result",
-        orderData,
-        JSON.stringify(orderData, null, 2)
-      );
-      const transaction = orderData.purchase_units[0].payments.captures[0];
-      alert(
-        `Transaction ${transaction.status}: ${transaction.id}\n\nSee console for all available details`
-      );
-    });
+    .then(handleSuccess);
 }
