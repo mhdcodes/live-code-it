@@ -37,7 +37,7 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center gap-24 bg-base-200">
       <Navbar />
-      <div className="flex flex-row gap-12">
+      <div className="flex flex-row gap-12 flex-wrap justify-center">
         {products.map((product) => (
           <ProductCard
             key={product.id}
@@ -66,7 +66,10 @@ const ProductCard = ({ id, name, description }: Props) => (
       />
     </figure>
     <div className="card-body">
-      <h2 className="card-title">{name}</h2>
+      <h2 className="card-title">
+        {name}{" "}
+        <span className="badge badge-secondary align-middle ml-4">$87.24</span>
+      </h2>
       <p>{description}</p>
       <div className="card-actions justify-end">
         <Link

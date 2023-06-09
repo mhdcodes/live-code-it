@@ -3,8 +3,7 @@
 import { useEffect } from "react";
 import { useScript } from "usehooks-ts";
 
-const clientId =
-  "AVoMscUn7LE4ZjcC15v5IDo5Nv2xofBFur7egKkVbyRw0AV6beQIt72rVMrIct0lOgOUOXVHEjmoH5BD";
+const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
 
 export const PayPalButton = () => {
   const status = useScript(
